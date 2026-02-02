@@ -1,4 +1,5 @@
-import { EventType, GameEvent, EventChoice, EventResult, GameData, Supplies } from './types';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { EventType, GameEvent, EventResult, GameData } from './types';
 import { EVENT_CHANCES } from './constants';
 
 let nextEventId = 0;
@@ -117,7 +118,7 @@ function generateBreakdownEvent(id: number): GameEvent {
   };
 }
 
-function generateTheftEvent(id: number, state: GameData): GameEvent {
+function generateTheftEvent(id: number, _state: GameData): GameEvent {
   return {
     id,
     type: EventType.Theft,
@@ -242,7 +243,7 @@ function applyInjuryChoice(choiceId: number, state: GameData): EventResult {
   }
 }
 
-function applyWeatherResult(state: GameData): EventResult {
+function applyWeatherResult(_state: GameData): EventResult {
   const foodLoss = Math.floor(Math.random() * 30) + 10;
   return {
     message: `You lost ${foodLoss} lbs of food to the weather.`,
@@ -265,7 +266,7 @@ function applyBreakdownChoice(choiceId: number, state: GameData): EventResult {
   }
 }
 
-function applyTheftResult(state: GameData): EventResult {
+function applyTheftResult(_state: GameData): EventResult {
   const foodLoss = Math.floor(Math.random() * 40) + 20;
   const ammoLoss = Math.floor(Math.random() * 20) + 5;
   return {
@@ -303,7 +304,7 @@ function applyDiscoveryResult(state: GameData): EventResult {
   }
 }
 
-function applyAnimalResult(state: GameData): EventResult {
+function applyAnimalResult(_state: GameData): EventResult {
   const roll = Math.random();
   if (roll < 0.3) {
     // Lost an ox

@@ -10,7 +10,7 @@ import {
   applyPurchase,
   applySale,
   getStoreInventory,
-  StoreItem,
+
 } from '../game/Store';
 import { Supplies } from '../game/types';
 

@@ -1,10 +1,9 @@
-import { Supplies, Wagon, PartyMember, RiverResult } from './types';
+import { Supplies, PartyMember, RiverResult } from './types';
 import {
   FORD_BASE_RISK,
   CAULK_BASE_RISK,
   FERRY_COST_PER_DIFFICULTY,
   WAIT_DIFFICULTY_REDUCTION,
-  MAX_RIVER_DIFFICULTY,
 } from './constants';
 
 /**

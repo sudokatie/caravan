@@ -170,9 +170,8 @@ export function applyDailyEffects(
       updateHealth(party, member.id, -INJURY_DAMAGE);
     }
 
-    // Check for death
-    if (member.health <= 0 && member.status !== 'dead') {
-      member.status = 'dead';
+    // Check for death (updateHealth already sets status='dead', but we add the message here)
+    if (member.health <= 0) {
       messages.push(`${member.name} has died.`);
     }
   }
