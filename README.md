@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Caravan
 
-## Getting Started
+Oregon Trail, but you can actually make it to Oregon.
 
-First, run the development server:
+## Why This Exists
+
+The original Oregon Trail taught a generation that dysentery is hilarious and fording rivers is basically Russian roulette. This version keeps the brutal survival mechanics but adds some actual strategy. You might still die of cholera, but at least you'll understand why.
+
+## Features
+
+- **Party management** - Name your pioneers, watch them get sick, desperately feed them medicine
+- **Supply economy** - Food, ammo, medicine, spare parts. Never enough of any of them.
+- **Weather system** - Seasons matter. Crossing the Rockies in winter is as bad an idea as it sounds.
+- **Random events** - Illness, injury, theft, broken axles, the occasional windfall
+- **River crossings** - Ford it (free but risky), caulk and float (uses parts), ferry (costs money), or wait (lose days)
+- **Hunting** - Spend ammo, maybe get food. The math is not in your favor.
+- **17 historical locations** - Independence to Oregon City, 2,000 miles of regret
+
+## Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 and try not to let everyone die.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Play
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Name your party** - Pick a month to depart (hint: not winter)
+2. **Buy supplies** - Food is critical, medicine is clutch, spare parts save lives
+3. **Hit the trail** - Adjust pace and rations as needed
+4. **Survive** - Handle events, cross rivers, hunt when desperate
+5. **Reach Oregon** - With at least one person alive
 
-## Learn More
+## Controls
 
-To learn more about Next.js, take a look at the following resources:
+- **Pace** - Steady (safe), Strenuous (faster, costs health), Grueling (you'll regret this)
+- **Rations** - Filling (healthy), Meager (stretches food), Bare Bones (starvation diet)
+- **Rest** - Burns a day, everyone heals a bit
+- **Hunt** - Uses ammo, returns 0-100 lbs of food based on luck
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Survival Tips
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Start in spring (March-May). Trust me.
+- Food consumption scales with party size. Fewer mouths = longer survival.
+- Grueling pace damages health AND the wagon. Use sparingly.
+- Ferry crossings are expensive but nobody drowns.
+- Save medicine for illness, not injuries. Injuries heal; cholera doesn't.
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Canvas rendering
+- 262 tests (because Oregon Trail edge cases are wild)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture
+
+```
+src/
+  game/           # Core game logic
+    Party.ts      # Health, status, death
+    Supplies.ts   # Resource tracking
+    Wagon.ts      # Damage, oxen, speed
+    Weather.ts    # Seasonal generation
+    Events.ts     # Random encounters
+    Travel.ts     # Distance calculation
+    River.ts      # Crossing mechanics
+    Hunting.ts    # Ammo to food conversion
+    Store.ts      # Buy/sell transactions
+    Game.ts       # Orchestrator
+  components/     # React UI
+  __tests__/      # Jest tests
+```
+
+## Historical Accuracy
+
+Locations are real. Distances are approximately real. Disease and death rates are toned down because nobody wants to restart 47 times. The original Oregon Trail had a hidden message about resource management and mortality. This one has the same message but with better UI.
+
+## License
+
+MIT
+
+## Author
+
+Katie
+
+---
+
+*You have died of mass regret.*
