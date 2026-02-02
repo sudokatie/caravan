@@ -9,6 +9,7 @@ import {
   WeatherType,
   TurnResult,
   Location,
+  DifficultyMode,
 } from './types';
 import {
   STARTING_MONTH,
@@ -16,6 +17,7 @@ import {
   MAX_WAGON_CONDITION,
   STARVATION_DAMAGE,
   REST_HEALTH_BONUS,
+  DIFFICULTY_SETTINGS,
 } from './constants';
 import { createParty, applyDailyEffects, isPartyAlive, updateHealth, getAliveMembers, healMember } from './Party';
 import { createSupplies, getDailyFoodNeed, cloneSupplies } from './Supplies';
@@ -30,16 +32,21 @@ import { getLocation, isDestination } from './locations';
 /**
  * Create initial game state
  */
-export function createGame(): GameData {
+export function createGame(difficulty: DifficultyMode = DifficultyMode.Normal): GameData {
+  const settings = DIFFICULTY_SETTINGS[difficulty];
+  const supplies = createSupplies();
+  supplies.money = settings.startingMoney;
+
   return {
     screen: GameScreen.Title,
+    difficulty,
     day: 1,
     month: STARTING_MONTH,
     year: STARTING_YEAR,
     distanceTraveled: 0,
     currentLocationIndex: 0,
     party: [],
-    supplies: createSupplies(),
+    supplies,
     wagon: createWagon(),
     pace: PaceType.Steady,
     rations: RationsType.Meager,
@@ -154,9 +161,10 @@ export function advanceTurn(state: GameData): TurnResult {
   const effectMessages = applyDailyEffects(state.party, state.rations, state.pace, dayOfWeek);
   messages.push(...effectMessages);
 
-  // Check for random event
+  // Check for random event (frequency affected by difficulty)
   let event: GameEvent | null = null;
-  const eventType = rollForEvent();
+  const diffSettings = DIFFICULTY_SETTINGS[state.difficulty];
+  const eventType = rollForEvent(diffSettings.eventMultiplier);
   if (eventType) {
     event = generateEvent(eventType, state);
   }
@@ -315,17 +323,28 @@ export function handleRiver(
 }
 
 /**
- * Handle hunting
+ * Handle hunting (takes 1 day)
  */
 export function handleHunting(state: GameData, ammoToUse: number): GameData {
   const result = hunt(ammoToUse, state.supplies.ammunition);
   
+  // Advance date (hunting takes a full day)
+  const newDate = advanceDay({ day: state.day, month: state.month, year: state.year });
+
+  // Consume food for the day
+  const aliveCount = getAliveMembers(state.party).length;
+  const foodNeeded = getDailyFoodNeed(aliveCount, state.rations);
+  
   const newSupplies = cloneSupplies(state.supplies);
   newSupplies.ammunition -= result.ammoUsed;
   newSupplies.food += result.foodGained;
+  newSupplies.food = Math.max(0, newSupplies.food - foodNeeded);
 
   return {
     ...state,
+    day: newDate.day,
+    month: newDate.month,
+    year: newDate.year,
     supplies: newSupplies,
     screen: GameScreen.Traveling,
     messages: [...state.messages, result.message],
@@ -336,10 +355,13 @@ export function handleHunting(state: GameData, ammoToUse: number): GameData {
  * Rest at landmark (one day)
  */
 export function rest(state: GameData): GameData {
-  // Heal party members
+  // Heal party members (amount affected by difficulty)
+  const diffSettings = DIFFICULTY_SETTINGS[state.difficulty];
+  const healAmount = REST_HEALTH_BONUS + diffSettings.healthRegenBonus;
+  
   for (const member of state.party) {
     if (member.status !== 'dead') {
-      updateHealth(state.party, member.id, REST_HEALTH_BONUS);
+      updateHealth(state.party, member.id, healAmount);
     }
   }
 

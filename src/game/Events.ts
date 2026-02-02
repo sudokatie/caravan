@@ -6,13 +6,14 @@ let nextEventId = 0;
 
 /**
  * Roll for a random event (may return null if no event)
+ * @param eventMultiplier - Scales event chances (0.5 = half as likely, 1.5 = 50% more likely)
  */
-export function rollForEvent(): EventType | null {
+export function rollForEvent(eventMultiplier: number = 1.0): EventType | null {
   const roll = Math.random();
   let cumulative = 0;
   
   for (const [eventType, chance] of Object.entries(EVENT_CHANCES)) {
-    cumulative += chance;
+    cumulative += chance * eventMultiplier;
     if (roll < cumulative) {
       return eventType as EventType;
     }

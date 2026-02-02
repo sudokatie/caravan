@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { GameData, GameScreen, PaceType, RationsType } from '../game/types';
+import { GameData, GameScreen, PaceType, RationsType, DifficultyMode } from '../game/types';
 import { ROUTE } from '../game/locations';
 import { STORE_PRICES } from '../game/constants';
 import {
@@ -50,8 +50,8 @@ export default function GameCanvas() {
   }, [game]);
 
   // Handlers
-  const handleStart = useCallback(() => {
-    setGame(prev => setScreen(prev, GameScreen.NameParty));
+  const handleStart = useCallback((difficulty: DifficultyMode) => {
+    setGame(setScreen(createGame(difficulty), GameScreen.NameParty));
   }, []);
 
   const handleNameConfirm = useCallback((names: string[]) => {
@@ -161,14 +161,14 @@ export default function GameCanvas() {
   }, []);
 
   const handleRestart = useCallback(() => {
-    setGame(createGame());
+    setGame(createGame(DifficultyMode.Normal));
   }, []);
 
-  // Keyboard shortcut for ENTER on title
+  // Keyboard shortcut for ENTER on title (starts with Normal difficulty)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && game.screen === GameScreen.Title) {
-        handleStart();
+        handleStart(DifficultyMode.Normal);
       }
     };
     window.addEventListener('keydown', handleKeyDown);

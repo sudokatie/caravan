@@ -371,4 +371,81 @@ describe('Game Orchestrator', () => {
       expect(game.messages).toContain('Test message');
     });
   });
+
+  describe('Difficulty Modes', () => {
+    it('should create game with Easy difficulty (more starting money)', () => {
+      const { DifficultyMode } = require('../game/types');
+      const game = createGame(DifficultyMode.Easy);
+      
+      expect(game.difficulty).toBe(DifficultyMode.Easy);
+      expect(game.supplies.money).toBe(600); // Easy = $600
+    });
+
+    it('should create game with Normal difficulty (standard money)', () => {
+      const { DifficultyMode } = require('../game/types');
+      const game = createGame(DifficultyMode.Normal);
+      
+      expect(game.difficulty).toBe(DifficultyMode.Normal);
+      expect(game.supplies.money).toBe(400); // Normal = $400
+    });
+
+    it('should create game with Hard difficulty (less starting money)', () => {
+      const { DifficultyMode } = require('../game/types');
+      const game = createGame(DifficultyMode.Hard);
+      
+      expect(game.difficulty).toBe(DifficultyMode.Hard);
+      expect(game.supplies.money).toBe(300); // Hard = $300
+    });
+
+    it('should default to Normal difficulty', () => {
+      const { DifficultyMode } = require('../game/types');
+      const game = createGame();
+      
+      expect(game.difficulty).toBe(DifficultyMode.Normal);
+      expect(game.supplies.money).toBe(400);
+    });
+  });
+
+  describe('handleHunting day consumption', () => {
+    it('should advance the day when hunting', () => {
+      let game = createGame();
+      game = startGame(game, ['Alice', 'Bob']);
+      game = beginTravel(game);
+      
+      const initialDay = game.day;
+      const initialMonth = game.month;
+      
+      // Give ammo for hunting
+      game.supplies.ammunition = 50;
+      game.supplies.food = 100;
+      
+      game = handleHunting(game, 10);
+      
+      // Day should have advanced
+      if (initialDay === 30) {
+        // Month should advance if at end of month
+        expect(game.month).toBe(initialMonth + 1);
+      } else {
+        expect(game.day).toBe(initialDay + 1);
+      }
+    });
+
+    it('should consume food for the hunting day', () => {
+      let game = createGame();
+      game = startGame(game, ['Alice', 'Bob']);
+      game = beginTravel(game);
+      
+      game.supplies.ammunition = 50;
+      game.supplies.food = 100;
+      
+      const initialFood = game.supplies.food;
+      game = handleHunting(game, 10);
+      
+      // Food should be consumed for the day (party size 2 * meager rations 2 = 4)
+      // Then food gained from hunting is added
+      // So final food = initial - 4 + foodGained
+      // We can't predict exact foodGained, but food consumption happened
+      expect(game.supplies.food).not.toBe(initialFood); // Food changed
+    });
+  });
 });

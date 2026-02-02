@@ -86,6 +86,13 @@ export enum RationsType {
   Filling = 'filling',
 }
 
+// Difficulty modes
+export enum DifficultyMode {
+  Easy = 'easy',
+  Normal = 'normal',
+  Hard = 'hard',
+}
+
 // Event choice
 export interface EventChoice {
   id: number;
@@ -128,6 +135,7 @@ export interface HuntingResult {
 // Full game state
 export interface GameData {
   screen: GameScreen;
+  difficulty: DifficultyMode;
   day: number;
   month: number;
   year: number;

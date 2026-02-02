@@ -1,4 +1,31 @@
-import { PaceType, RationsType, EventType, WeatherType } from './types';
+import { PaceType, RationsType, EventType, WeatherType, DifficultyMode } from './types';
+
+// Difficulty settings
+export const DIFFICULTY_SETTINGS: Record<DifficultyMode, {
+  startingMoney: number;
+  eventMultiplier: number;
+  healthRegenBonus: number;
+  weatherHarshness: number;
+}> = {
+  [DifficultyMode.Easy]: {
+    startingMoney: 600,
+    eventMultiplier: 0.5,    // Events 50% less frequent
+    healthRegenBonus: 5,     // Extra health regen at rest
+    weatherHarshness: 1.0,
+  },
+  [DifficultyMode.Normal]: {
+    startingMoney: 400,
+    eventMultiplier: 1.0,
+    healthRegenBonus: 0,
+    weatherHarshness: 1.0,
+  },
+  [DifficultyMode.Hard]: {
+    startingMoney: 300,
+    eventMultiplier: 1.5,    // Events 50% more frequent
+    healthRegenBonus: -3,    // Slower recovery
+    weatherHarshness: 1.5,   // Harsher weather effects
+  },
+};
 
 // Journey
 export const TOTAL_DISTANCE = 2000;
