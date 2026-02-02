@@ -37,7 +37,7 @@ export default function NameParty({ onConfirm }: NamePartyProps) {
         </h2>
 
         <p className="text-amber-400 mb-6 text-center">
-          Who will join you on this journey? (2-5 members)
+          Who will join you on this journey? (4-5 members)
         </p>
 
         <div className="space-y-3 mb-8">
@@ -79,7 +79,7 @@ export default function NameParty({ onConfirm }: NamePartyProps) {
 
         <button
           onClick={handleSubmit}
-          disabled={names.filter(n => n.trim()).length < 2}
+          disabled={names.filter(n => n.trim()).length < 4}
           className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-gray-700 disabled:cursor-not-allowed
                      text-amber-100 py-3 rounded-lg text-lg transition-colors border border-amber-500"
         >

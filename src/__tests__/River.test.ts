@@ -63,7 +63,13 @@ describe('calculateFerryCost', () => {
   test('returns cost based on difficulty', () => {
     expect(calculateFerryCost(1)).toBe(5);
     expect(calculateFerryCost(3)).toBe(15);
-    expect(calculateFerryCost(5)).toBe(25);
+    expect(calculateFerryCost(4)).toBe(20);
+  });
+
+  test('caps ferry cost at $20 per spec', () => {
+    // Difficulty 5 would be $25 but spec says max $20
+    expect(calculateFerryCost(5)).toBe(20);
+    expect(calculateFerryCost(10)).toBe(20);
   });
 });
 
@@ -146,7 +152,7 @@ describe('takeFerry', () => {
   test('fails without enough money', () => {
     const result = takeFerry(5, 10);
     expect(result.success).toBe(false);
-    expect(result.message).toContain('$25');
+    expect(result.message).toContain('$20'); // Capped at $20
   });
 
   test('succeeds and charges money', () => {
@@ -158,7 +164,7 @@ describe('takeFerry', () => {
   test('is always safe (no random element)', () => {
     const result = takeFerry(5, 100);
     expect(result.success).toBe(true);
-    expect(result.suppliesLost?.money).toBe(25);
+    expect(result.suppliesLost?.money).toBe(20); // Capped at $20
   });
 });
 

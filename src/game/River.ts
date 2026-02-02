@@ -24,9 +24,11 @@ export function calculateCaulkRisk(difficulty: number): number {
 
 /**
  * Calculate ferry cost based on difficulty
+ * Capped at $20 per spec (difficulty 1-5 = $5-20)
  */
 export function calculateFerryCost(difficulty: number): number {
-  return difficulty * FERRY_COST_PER_DIFFICULTY;
+  const cost = difficulty * FERRY_COST_PER_DIFFICULTY;
+  return Math.min(cost, 20); // Cap at $20 per spec
 }
 
 /**
