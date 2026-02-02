@@ -54,8 +54,8 @@ export default function GameCanvas() {
     setGame(setScreen(createGame(difficulty), GameScreen.NameParty));
   }, []);
 
-  const handleNameConfirm = useCallback((names: string[]) => {
-    setGame(prev => startGame(prev, names));
+  const handleNameConfirm = useCallback((names: string[], startMonth: number) => {
+    setGame(prev => startGame(prev, names, startMonth));
   }, []);
 
   const handleBuy = useCallback((item: keyof typeof STORE_PRICES, quantity: number) => {

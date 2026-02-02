@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 interface NamePartyProps {
-  onConfirm: (names: string[]) => void;
+  onConfirm: (names: string[], startMonth: number) => void;
 }
 
 const DEFAULT_NAMES = ['John', 'Mary', 'William', 'Sarah', 'James'];
@@ -21,7 +21,7 @@ export default function NameParty({ onConfirm }: NamePartyProps) {
   const handleSubmit = () => {
     const validNames = names.filter(n => n.trim().length > 0);
     if (validNames.length >= 2) {
-      onConfirm(validNames);
+      onConfirm(validNames, month);
     }
   };
 

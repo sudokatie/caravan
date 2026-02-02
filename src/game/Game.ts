@@ -57,13 +57,14 @@ export function createGame(difficulty: DifficultyMode = DifficultyMode.Normal): 
 }
 
 /**
- * Start game with named party members
+ * Start game with named party members and optional starting month
  */
-export function startGame(state: GameData, names: string[]): GameData {
+export function startGame(state: GameData, names: string[], startMonth?: number): GameData {
   const party = createParty(names);
   return {
     ...state,
     party,
+    month: startMonth ?? state.month,
     screen: GameScreen.Store,
     messages: ['Welcome to the trail! Stock up on supplies before you leave.'],
   };

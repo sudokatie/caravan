@@ -20,7 +20,7 @@ import {
   clearMessages,
   addMessage,
 } from '../game/Game';
-import { GameScreen, PaceType, RationsType, EventType } from '../game/types';
+import { GameScreen, PaceType, RationsType, EventType, DifficultyMode } from '../game/types';
 import { resetMemberIds } from '../game/Party';
 import { resetEventIds } from '../game/Events';
 import { TOTAL_DISTANCE, STARTING_FOOD } from '../game/constants';
@@ -374,7 +374,6 @@ describe('Game Orchestrator', () => {
 
   describe('Difficulty Modes', () => {
     it('should create game with Easy difficulty (more starting money)', () => {
-      const { DifficultyMode } = require('../game/types');
       const game = createGame(DifficultyMode.Easy);
       
       expect(game.difficulty).toBe(DifficultyMode.Easy);
@@ -382,7 +381,6 @@ describe('Game Orchestrator', () => {
     });
 
     it('should create game with Normal difficulty (standard money)', () => {
-      const { DifficultyMode } = require('../game/types');
       const game = createGame(DifficultyMode.Normal);
       
       expect(game.difficulty).toBe(DifficultyMode.Normal);
@@ -390,7 +388,6 @@ describe('Game Orchestrator', () => {
     });
 
     it('should create game with Hard difficulty (less starting money)', () => {
-      const { DifficultyMode } = require('../game/types');
       const game = createGame(DifficultyMode.Hard);
       
       expect(game.difficulty).toBe(DifficultyMode.Hard);
@@ -398,7 +395,6 @@ describe('Game Orchestrator', () => {
     });
 
     it('should default to Normal difficulty', () => {
-      const { DifficultyMode } = require('../game/types');
       const game = createGame();
       
       expect(game.difficulty).toBe(DifficultyMode.Normal);
@@ -446,6 +442,30 @@ describe('Game Orchestrator', () => {
       // So final food = initial - 4 + foodGained
       // We can't predict exact foodGained, but food consumption happened
       expect(game.supplies.food).not.toBe(initialFood); // Food changed
+    });
+  });
+
+  describe('startGame with custom start month', () => {
+    it('should use custom start month when provided', () => {
+      let game = createGame();
+      game = startGame(game, ['Alice', 'Bob'], 6); // June
+      
+      expect(game.month).toBe(6);
+      expect(game.party.length).toBe(2);
+    });
+
+    it('should default to April if no start month provided', () => {
+      let game = createGame();
+      game = startGame(game, ['Alice', 'Bob']);
+      
+      expect(game.month).toBe(4); // STARTING_MONTH
+    });
+
+    it('should allow March departure for early start', () => {
+      let game = createGame();
+      game = startGame(game, ['Alice', 'Bob'], 3); // March
+      
+      expect(game.month).toBe(3);
     });
   });
 });
