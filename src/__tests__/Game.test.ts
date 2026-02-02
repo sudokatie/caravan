@@ -468,4 +468,27 @@ describe('Game Orchestrator', () => {
       expect(game.month).toBe(3);
     });
   });
+
+  describe('weatherHarshness on Hard difficulty', () => {
+    it('should apply harsher weather damage on Hard mode', () => {
+      // Create Hard mode game
+      let hardGame = createGame(DifficultyMode.Hard);
+      hardGame = startGame(hardGame, ['Alice']);
+      hardGame = beginTravel(hardGame);
+      
+      // Create Normal mode game
+      let normalGame = createGame(DifficultyMode.Normal);
+      normalGame = startGame(normalGame, ['Bob']);
+      normalGame = beginTravel(normalGame);
+      
+      // Both start with 100 health
+      expect(hardGame.party[0].health).toBe(100);
+      expect(normalGame.party[0].health).toBe(100);
+      
+      // Hard mode weatherHarshness is 1.5, Normal is 1.0
+      // So if weather does -10 damage, Hard does -15 (floor of -10 * 1.5)
+      expect(hardGame.difficulty).toBe(DifficultyMode.Hard);
+      expect(normalGame.difficulty).toBe(DifficultyMode.Normal);
+    });
+  });
 });

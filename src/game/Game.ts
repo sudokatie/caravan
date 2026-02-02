@@ -144,15 +144,20 @@ export function advanceTurn(state: GameData): TurnResult {
     }
   }
 
-  // Apply weather effects
+  // Apply weather effects (scaled by difficulty)
   const weatherEffect = getWeatherEffect(weather);
+  const diffSettings = DIFFICULTY_SETTINGS[state.difficulty];
   if (weatherEffect.healthMod !== 0) {
+    // Apply harshness multiplier to negative weather effects
+    const scaledHealthMod = weatherEffect.healthMod < 0
+      ? Math.floor(weatherEffect.healthMod * diffSettings.weatherHarshness)
+      : weatherEffect.healthMod;
     for (const member of state.party) {
       if (member.status !== 'dead') {
-        updateHealth(state.party, member.id, weatherEffect.healthMod);
+        updateHealth(state.party, member.id, scaledHealthMod);
       }
     }
-    if (weatherEffect.healthMod < 0) {
+    if (scaledHealthMod < 0) {
       messages.push(`The ${weather} weather is taking a toll on the party.`);
     }
   }
@@ -164,7 +169,6 @@ export function advanceTurn(state: GameData): TurnResult {
 
   // Check for random event (frequency affected by difficulty)
   let event: GameEvent | null = null;
-  const diffSettings = DIFFICULTY_SETTINGS[state.difficulty];
   const eventType = rollForEvent(diffSettings.eventMultiplier);
   if (eventType) {
     event = generateEvent(eventType, state);
