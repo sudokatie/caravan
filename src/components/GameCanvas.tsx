@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GameData, GameScreen, PaceType, RationsType, DifficultyMode } from '../game/types';
 import { ROUTE } from '../game/locations';
-import { STORE_PRICES } from '../game/constants';
+import { STORE_PRICES, MAX_OXEN, MIN_OXEN } from '../game/constants';
 import {
   createGame,
   startGame,
@@ -60,9 +60,26 @@ export default function GameCanvas() {
 
   const handleBuy = useCallback((item: keyof typeof STORE_PRICES, quantity: number) => {
     setGame(prev => {
-      const result = buy(item as 'food' | 'ammunition' | 'medicine' | 'spareParts' | 'oxen', quantity, prev.supplies.money);
+      // Handle oxen separately - they go to wagon, not supplies
+      if (item === 'oxen') {
+        if (prev.wagon.oxen >= MAX_OXEN) return prev;
+        const result = buy('oxen', quantity, prev.supplies.money);
+        if (result.success) {
+          const newOxenCount = Math.min(MAX_OXEN, prev.wagon.oxen + quantity);
+          const actualQuantity = newOxenCount - prev.wagon.oxen;
+          const actualCost = actualQuantity * STORE_PRICES.oxen;
+          return {
+            ...prev,
+            supplies: { ...prev.supplies, money: prev.supplies.money - actualCost },
+            wagon: { ...prev.wagon, oxen: newOxenCount },
+          };
+        }
+        return prev;
+      }
+
+      const result = buy(item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity, prev.supplies.money);
       if (result.success) {
-        const newSupplies = applyPurchase(prev.supplies, item as 'food' | 'ammunition' | 'medicine' | 'spareParts' | 'oxen', quantity);
+        const newSupplies = applyPurchase(prev.supplies, item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity);
         return { ...prev, supplies: newSupplies };
       }
       return prev;
@@ -71,13 +88,26 @@ export default function GameCanvas() {
 
   const handleSell = useCallback((item: keyof typeof STORE_PRICES, quantity: number) => {
     setGame(prev => {
+      // Handle oxen separately - they come from wagon, not supplies
+      if (item === 'oxen') {
+        if (prev.wagon.oxen <= MIN_OXEN) return prev; // Can't sell last ox
+        const actualQuantity = Math.min(quantity, prev.wagon.oxen - MIN_OXEN);
+        if (actualQuantity <= 0) return prev;
+        const revenue = actualQuantity * STORE_PRICES.oxen * 0.5; // 50% sell price
+        return {
+          ...prev,
+          supplies: { ...prev.supplies, money: prev.supplies.money + revenue },
+          wagon: { ...prev.wagon, oxen: prev.wagon.oxen - actualQuantity },
+        };
+      }
+
       const currentQty = item === 'food' ? prev.supplies.food :
                         item === 'ammunition' ? prev.supplies.ammunition :
                         item === 'medicine' ? prev.supplies.medicine :
                         item === 'spareParts' ? prev.supplies.spareParts : 0;
-      const result = sell(item as 'food' | 'ammunition' | 'medicine' | 'spareParts' | 'oxen', quantity, currentQty);
+      const result = sell(item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity, currentQty);
       if (result.success) {
-        const newSupplies = applySale(prev.supplies, item as 'food' | 'ammunition' | 'medicine' | 'spareParts' | 'oxen', quantity);
+        const newSupplies = applySale(prev.supplies, item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity);
         return { ...prev, supplies: newSupplies };
       }
       return prev;
@@ -189,6 +219,7 @@ export default function GameCanvas() {
       return (
         <Store
           supplies={game.supplies}
+          wagon={game.wagon}
           onBuy={handleBuy}
           onSell={handleSell}
           onLeave={handleLeaveStore}

@@ -53,8 +53,7 @@ Open http://localhost:3000 and try not to let everyone die.
 - Next.js 14
 - TypeScript
 - Tailwind CSS
-- Canvas rendering
-- 262 tests (because Oregon Trail edge cases are wild)
+- 273 tests (because Oregon Trail edge cases are wild)
 
 ## Architecture
 

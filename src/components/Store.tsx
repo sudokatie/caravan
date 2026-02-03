@@ -1,10 +1,11 @@
 'use client';
 
-import { Supplies } from '../game/types';
-import { STORE_PRICES } from '../game/constants';
+import { Supplies, Wagon } from '../game/types';
+import { STORE_PRICES, MAX_OXEN, MIN_OXEN } from '../game/constants';
 
 interface StoreProps {
   supplies: Supplies;
+  wagon: Wagon;
   onBuy: (item: keyof typeof STORE_PRICES, quantity: number) => void;
   onSell: (item: keyof typeof STORE_PRICES, quantity: number) => void;
   onLeave: () => void;
@@ -19,7 +20,7 @@ const itemLabels: Record<string, { name: string; unit: string }> = {
   oxen: { name: 'Oxen', unit: '' },
 };
 
-export default function Store({ supplies, onBuy, onSell, onLeave, locationName }: StoreProps) {
+export default function Store({ supplies, wagon, onBuy, onSell, onLeave, locationName }: StoreProps) {
   const items: (keyof typeof STORE_PRICES)[] = ['food', 'ammunition', 'medicine', 'spareParts', 'oxen'];
 
   const getQuantity = (item: keyof typeof STORE_PRICES): number => {
@@ -27,7 +28,18 @@ export default function Store({ supplies, onBuy, onSell, onLeave, locationName }
     if (item === 'food') return supplies.food;
     if (item === 'medicine') return supplies.medicine;
     if (item === 'spareParts') return supplies.spareParts;
-    return 0; // oxen handled by wagon
+    if (item === 'oxen') return wagon.oxen;
+    return 0;
+  };
+
+  const canBuyMore = (item: keyof typeof STORE_PRICES): boolean => {
+    if (item === 'oxen') return wagon.oxen < MAX_OXEN;
+    return true;
+  };
+
+  const canSellItem = (item: keyof typeof STORE_PRICES): boolean => {
+    if (item === 'oxen') return wagon.oxen > MIN_OXEN;
+    return getQuantity(item) > 0;
   };
 
   return (
@@ -67,7 +79,7 @@ export default function Store({ supplies, onBuy, onSell, onLeave, locationName }
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => onSell(item, item === 'food' ? 10 : 1)}
-                      disabled={getQuantity(item) <= 0}
+                      disabled={!canSellItem(item)}
                       className="bg-red-700 hover:bg-red-600 disabled:bg-gray-700 disabled:cursor-not-allowed
                                  px-3 py-1 rounded text-sm"
                     >
@@ -75,7 +87,7 @@ export default function Store({ supplies, onBuy, onSell, onLeave, locationName }
                     </button>
                     <button
                       onClick={() => onBuy(item, item === 'food' ? 10 : 1)}
-                      disabled={supplies.money < STORE_PRICES[item]}
+                      disabled={supplies.money < STORE_PRICES[item] || !canBuyMore(item)}
                       className="bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed
                                  px-3 py-1 rounded text-sm"
                     >
