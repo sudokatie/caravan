@@ -16,6 +16,7 @@ The original Oregon Trail taught a generation that dysentery is hilarious and fo
 - **Hunting** - Spend ammo, maybe get food. The math is not in your favor.
 - **17 historical locations** - Independence to Oregon City, 2,000 miles of regret
 - **Sound effects** - Retro synthesized sounds for all key actions
+- **Leaderboard** - Track your best journeys (distance, survivors, time bonuses)
 
 ## Quick Start
 
