@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameData, GameScreen, PaceType, RationsType, DifficultyMode } from '../game/types';
 import { ROUTE } from '../game/locations';
 import { STORE_PRICES, MAX_OXEN, MIN_OXEN } from '../game/constants';
@@ -24,6 +24,7 @@ import {
   clearMessages,
 } from '../game/Game';
 import { buy, sell, applyPurchase, applySale } from '../game/Store';
+import { Sound } from '../game/Sound';
 
 import TitleScreen from './TitleScreen';
 import NameParty from './NameParty';
@@ -37,17 +38,29 @@ import GameOver from './GameOver';
 
 export default function GameCanvas() {
   const [game, setGame] = useState<GameData>(createGame());
+  const prevDeadCountRef = useRef(0);
 
   // Check for game over conditions
   useEffect(() => {
     if (game.screen === GameScreen.Traveling) {
       if (isGameOver(game)) {
+        Sound.play('gameOver');
         setGame(prev => setScreen(prev, GameScreen.GameOver));
       } else if (isVictory(game)) {
+        Sound.play('victory');
         setGame(prev => setScreen(prev, GameScreen.Victory));
       }
     }
   }, [game]);
+
+  // Track party deaths for sound effect
+  useEffect(() => {
+    const currentDeadCount = game.party.filter(m => m.status === 'dead').length;
+    if (currentDeadCount > prevDeadCountRef.current && prevDeadCountRef.current > 0) {
+      Sound.play('death');
+    }
+    prevDeadCountRef.current = currentDeadCount;
+  }, [game.party]);
 
   // Handlers
   const handleStart = useCallback((difficulty: DifficultyMode) => {
@@ -68,6 +81,7 @@ export default function GameCanvas() {
           const newOxenCount = Math.min(MAX_OXEN, prev.wagon.oxen + quantity);
           const actualQuantity = newOxenCount - prev.wagon.oxen;
           const actualCost = actualQuantity * STORE_PRICES.oxen;
+          Sound.play('buy');
           return {
             ...prev,
             supplies: { ...prev.supplies, money: prev.supplies.money - actualCost },
@@ -79,6 +93,7 @@ export default function GameCanvas() {
 
       const result = buy(item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity, prev.supplies.money);
       if (result.success) {
+        Sound.play('buy');
         const newSupplies = applyPurchase(prev.supplies, item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity);
         return { ...prev, supplies: newSupplies };
       }
@@ -94,6 +109,7 @@ export default function GameCanvas() {
         const actualQuantity = Math.min(quantity, prev.wagon.oxen - MIN_OXEN);
         if (actualQuantity <= 0) return prev;
         const revenue = actualQuantity * STORE_PRICES.oxen * 0.5; // 50% sell price
+        Sound.play('sell');
         return {
           ...prev,
           supplies: { ...prev.supplies, money: prev.supplies.money + revenue },
@@ -107,6 +123,7 @@ export default function GameCanvas() {
                         item === 'spareParts' ? prev.supplies.spareParts : 0;
       const result = sell(item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity, currentQty);
       if (result.success) {
+        Sound.play('sell');
         const newSupplies = applySale(prev.supplies, item as 'food' | 'ammunition' | 'medicine' | 'spareParts', quantity);
         return { ...prev, supplies: newSupplies };
       }
@@ -119,9 +136,14 @@ export default function GameCanvas() {
   }, []);
 
   const handleContinue = useCallback(() => {
+    Sound.play('travel');
     setGame(prev => {
       const cleared = clearMessages(prev);
       const result = advanceTurn(cleared);
+      // Play event sound if an event occurred
+      if (result.event) {
+        Sound.play('event');
+      }
       return applyTurnResult(cleared, result);
     });
   }, []);
@@ -135,7 +157,16 @@ export default function GameCanvas() {
   }, []);
 
   const handleHuntConfirm = useCallback((ammoUsed: number) => {
-    setGame(prev => handleHunting(prev, ammoUsed));
+    Sound.play('hunt');
+    setGame(prev => {
+      const result = handleHunting(prev, ammoUsed);
+      // Check if hunt was successful (more food than before minus consumption)
+      const foodGained = result.supplies.food > prev.supplies.food - 10; // rough check
+      if (foodGained) {
+        setTimeout(() => Sound.play('huntSuccess'), 200);
+      }
+      return result;
+    });
   }, []);
 
   const handleHuntCancel = useCallback(() => {
@@ -163,14 +194,17 @@ export default function GameCanvas() {
   }, []);
 
   const handleRiverFord = useCallback(() => {
+    Sound.play('river');
     setGame(prev => handleRiver(prev, 'ford'));
   }, []);
 
   const handleRiverCaulk = useCallback(() => {
+    Sound.play('river');
     setGame(prev => handleRiver(prev, 'caulk'));
   }, []);
 
   const handleRiverFerry = useCallback(() => {
+    Sound.play('river');
     setGame(prev => handleRiver(prev, 'ferry'));
   }, []);
 

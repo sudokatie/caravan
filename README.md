@@ -15,6 +15,7 @@ The original Oregon Trail taught a generation that dysentery is hilarious and fo
 - **River crossings** - Ford it (free but risky), caulk and float (uses parts), ferry (costs money), or wait (lose days)
 - **Hunting** - Spend ammo, maybe get food. The math is not in your favor.
 - **17 historical locations** - Independence to Oregon City, 2,000 miles of regret
+- **Sound effects** - Retro synthesized sounds for all key actions
 
 ## Quick Start
 
@@ -53,7 +54,7 @@ Open http://localhost:3000 and try not to let everyone die.
 - Next.js 14
 - TypeScript
 - Tailwind CSS
-- 273 tests (because Oregon Trail edge cases are wild)
+- 292 tests (because Oregon Trail edge cases are wild)
 
 ## Architecture
 
@@ -69,6 +70,7 @@ src/
     River.ts      # Crossing mechanics
     Hunting.ts    # Ammo to food conversion
     Store.ts      # Buy/sell transactions
+    Sound.ts      # Web Audio synthesized SFX
     Game.ts       # Orchestrator
   components/     # React UI
   __tests__/      # Jest tests
