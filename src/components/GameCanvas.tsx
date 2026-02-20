@@ -25,6 +25,7 @@ import {
 } from '../game/Game';
 import { buy, sell, applyPurchase, applySale } from '../game/Store';
 import { Sound } from '../game/Sound';
+import { Music } from '../game/Music';
 
 import TitleScreen from './TitleScreen';
 import NameParty from './NameParty';
@@ -61,6 +62,30 @@ export default function GameCanvas() {
     }
     prevDeadCountRef.current = currentDeadCount;
   }, [game.party]);
+
+  // Switch music track based on game screen
+  useEffect(() => {
+    switch (game.screen) {
+      case GameScreen.Title:
+      case GameScreen.NameParty:
+      case GameScreen.Store:
+      case GameScreen.Landmark:
+        Music.play('menu');
+        break;
+      case GameScreen.Traveling:
+      case GameScreen.Event:
+      case GameScreen.River:
+      case GameScreen.Hunting:
+        Music.play('gameplay');
+        break;
+      case GameScreen.Victory:
+        Music.play('victory');
+        break;
+      case GameScreen.GameOver:
+        Music.play('gameover');
+        break;
+    }
+  }, [game.screen]);
 
   // Handlers
   const handleStart = useCallback((difficulty: DifficultyMode) => {

@@ -3,7 +3,7 @@
  * Generates frontier/western journey-themed chiptune background music.
  */
 
-type MusicTrack = 'gameplay' | 'menu' | 'victory';
+type MusicTrack = 'gameplay' | 'menu' | 'victory' | 'gameover';
 
 interface Note {
   frequency: number;
@@ -148,6 +148,82 @@ class MusicSystem {
     }));
   }
 
+  // Menu track - anticipation of the journey
+  private getMenuNotes(): Note[] {
+    const bpm = 75;
+    const beat = 60 / bpm;
+    const half = beat * 2;
+    const quarter = beat;
+    const eighth = beat / 2;
+
+    const melody = [
+      { note: 'D3', dur: half },
+      { note: 'G3', dur: quarter },
+      { note: 'A3', dur: quarter },
+      { note: 'B3', dur: half },
+      { note: 'A3', dur: half },
+      { note: 'G3', dur: quarter },
+      { note: 'D3', dur: eighth },
+      { note: 'E3', dur: eighth },
+      { note: 'G3', dur: half },
+      { note: 'D3', dur: half },
+    ];
+
+    return melody.map(n => ({
+      frequency: this.noteToFreq(n.note),
+      duration: n.dur,
+    }));
+  }
+
+  // Victory track - successful arrival
+  private getVictoryNotes(): Note[] {
+    const bpm = 110;
+    const beat = 60 / bpm;
+    const quarter = beat;
+    const eighth = beat / 2;
+
+    const melody = [
+      { note: 'G4', dur: eighth },
+      { note: 'A4', dur: eighth },
+      { note: 'B4', dur: quarter },
+      { note: 'D5', dur: quarter },
+      { note: 'B4', dur: eighth },
+      { note: 'G4', dur: eighth },
+      { note: 'A4', dur: quarter },
+      { note: 'G4', dur: quarter },
+      { note: 'D4', dur: quarter },
+      { note: 'G4', dur: quarter * 2 },
+    ];
+
+    return melody.map(n => ({
+      frequency: this.noteToFreq(n.note),
+      duration: n.dur,
+    }));
+  }
+
+  // Game over track - lost on the trail
+  private getGameoverNotes(): Note[] {
+    const bpm = 60;
+    const beat = 60 / bpm;
+    const half = beat * 2;
+    const quarter = beat;
+
+    const melody = [
+      { note: 'G3', dur: quarter },
+      { note: 'E3', dur: quarter },
+      { note: 'D3', dur: half },
+      { note: 'C3', dur: quarter },
+      { note: 'D3', dur: quarter },
+      { note: 'E3', dur: half },
+      { note: 'D3', dur: half * 2 },
+    ];
+
+    return melody.map(n => ({
+      frequency: this.noteToFreq(n.note),
+      duration: n.dur,
+    }));
+  }
+
   private scheduleTrack(notes: Note[]): number {
     const ctx = this.getContext();
     if (!ctx) return 0;
@@ -184,8 +260,17 @@ class MusicSystem {
 
     let notes: Note[];
     switch (this.currentTrack) {
+      case 'menu':
+        notes = this.getMenuNotes();
+        break;
       case 'gameplay':
         notes = this.getGameplayNotes();
+        break;
+      case 'victory':
+        notes = this.getVictoryNotes();
+        break;
+      case 'gameover':
+        notes = this.getGameoverNotes();
         break;
       default:
         notes = this.getGameplayNotes();
